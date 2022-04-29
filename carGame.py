@@ -7,6 +7,7 @@ from utils import scale_image, blit_rotate_center
 TRACK = scale_image(pygame.image.load("assets/track.png"), 0.9)
 
 TRACK_BORDER = scale_image(pygame.image.load("assets/track-border.png"), 0.9)
+TRACK_BORDER_MASK = pygame.mask.from_surface(TRACK_BORDER)
 
 CAR = scale_image(pygame.image.load("assets/red-car.png"), 0.55)
 
@@ -57,6 +58,12 @@ class AbstractCar:
         self.vel = max(self.vel - self.acceleration / 2, 0)
         self.move()
 
+    def collide(self, mask, x=0, y=0):
+        car_mask = pygame.mask.from_surface(self.img)
+        offset = (int(self.x - x), int(self.y - y))
+        poi = mask.overlap(car_mask, offset)
+        return poi
+    
 
 class PlayerCar(AbstractCar):
     IMG = CAR
@@ -69,23 +76,8 @@ def draw(win, images, player_car):
 
     player_car.draw(win)
     pygame.display.update()
-
-
-run = True
-clock = pygame.time.Clock()
-images = [(TRACK, (0, 0))]
-player_car = PlayerCar(4, 4)
-
-while run:
-    clock.tick(FPS)
-
-    draw(WIN, images, player_car)
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-            break
-
+    
+def move_player(player_car):
     keys = pygame.key.get_pressed()
     moved = False
 
@@ -103,5 +95,24 @@ while run:
     if not moved:
         player_car.reduce_speed()
 
+run = True
+clock = pygame.time.Clock()
+images = [(TRACK, (0, 0))]
+player_car = PlayerCar(3, 4)
+
+while run:   
+    clock.tick(FPS)
+
+    draw(WIN, images, player_car)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+            break
+    move_player(player_car)
+    
+    if player_car.collide(TRACK_BORDER_MASK):
+        run = False
+        break
 
 pygame.quit()
