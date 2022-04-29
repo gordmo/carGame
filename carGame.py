@@ -6,10 +6,13 @@ from utils import scale_image, blit_rotate_center
 #GRASS = scale_image(pygame.image.load("imgs/grass.jpg"), 2.5)
 TRACK = scale_image(pygame.image.load("assets/track.png"), 0.9)
 
-TRACK_BORDER = scale_image(pygame.image.load("assets/track-border.png"), 0.9)
+TRACK_BORDER = scale_image(pygame.image.load("assets/track-border.png"), 1.76)
 TRACK_BORDER_MASK = pygame.mask.from_surface(TRACK_BORDER)
 
-CAR = scale_image(pygame.image.load("assets/red-car.png"), 0.55)
+CAR = scale_image(pygame.image.load("assets/red-car.png"), 0.4)
+FINISH = pygame.image.load("assets/finish.png")
+FINISH_POS = (500, 30)
+FINISH_MASK = pygame.mask.from_surface(FINISH)
 
 
 WIDTH, HEIGHT = TRACK.get_width(), TRACK.get_height()
@@ -25,7 +28,7 @@ class AbstractCar:
         self.max_vel = max_vel
         self.vel = 0
         self.rotation_vel = rotation_vel
-        self.angle = 0
+        self.angle = 90
         self.x, self.y = self.START_POS
         self.acceleration = 0.1
 
@@ -67,7 +70,7 @@ class AbstractCar:
 
 class PlayerCar(AbstractCar):
     IMG = CAR
-    START_POS = (180, 200)
+    START_POS = (400, 62)
 
 
 def draw(win, images, player_car):
@@ -97,8 +100,9 @@ def move_player(player_car):
 
 run = True
 clock = pygame.time.Clock()
-images = [(TRACK, (0, 0))]
-player_car = PlayerCar(3, 4)
+images = [(TRACK, (0, 0)),(TRACK_BORDER, (0,0)), (FINISH, FINISH_POS)]
+
+player_car = PlayerCar(2.2, 4)
 
 while run:   
     clock.tick(FPS)
@@ -112,7 +116,9 @@ while run:
     move_player(player_car)
     
     if player_car.collide(TRACK_BORDER_MASK):
-        run = False
-        break
-
+        print("Collided")
+    
+    if player_car.collide(FINISH_MASK, *FINISH_POS) != None:
+        print("Finished")
+        
 pygame.quit()
